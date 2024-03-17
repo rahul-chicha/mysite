@@ -32,12 +32,12 @@ def send_json(request):
     friends = ["ram", "shyam", "raju"]
     return JsonResponse(friends, safe=False)
 
-def question(request):
+def question_detection(request):
     print(request)
     # "D:\project2024\qna2024\best (1).pt"
     # model = YOLO(model='../best.pt')  # load a pretrained model (recommended for training)
-    model = YOLO(model='D:/project2024/qna2024/best (3).pt')  # load a pretrained model (recommended for training)
-    results = model('D:\project2024\qna2024\history-0002.png', save=True, save_crop=True,  conf=0.50, iou=0.50, line_width=3, project='D:/project2024/qna2024/runs/detect')
+    model = YOLO(model= './best.pt' )  # load a pretrained model (recommended for training)
+    results = model('E://myproject2024/qna2024/history-0081.png', save=True, save_crop=True,  conf=0.50, iou=0.50, line_width=3, project='e:/myproject2024/runs/detect')
     # for result in results:
     #     print(result[0].names)
     print(results[0].__len__())
@@ -47,8 +47,12 @@ def question(request):
 def deploy(request):
     rf = Roboflow(api_key="VAcp69rkEQ0XVvoLxLGD")
     project = rf.workspace().project("qna-rslvg")
-    project.version(5).deploy(model_type='yolov8', model_path='./runs/detect/train/')
+    project.version(8).deploy(model_type='yolov8', model_path='C://Users/WIN11_2024/Downloads', filename='best.pt')
     return HttpResponse("deployed")
+
+def upload_for_active_learning(request):
+    rf = Roboflow(api_key="VAcp69rkEQ0XVvoLxLGD")
+    project = rf.workspace().project("qna-rslvg")
 
 def drive_upload(request):
     creds = None
@@ -106,9 +110,10 @@ input_paragraph = "_______________ 08. * नवपाषाण युग मे�
 # Function to split the paragraph into different parts
 def split_paragraph(input_string):
     # Define a pattern to capture different sections
-    print(input_string)
-    pattern = re.compile(r'(\d+\.)\s*\*\s*(.*?)(?:\((A|B|C|D|E)\)\s*(.*?)(?=\([A-E]\)|\[|$))?\s*(\[.*?\])?\s*(.*)')
-
+    input_paragraph = "_______________ 08. * नवपाषाण युग में भारतीय उपमहाद्वीप के उत्तर-पश्चिमी क्षेत्र में निम्नलिखित में से किस स्थान पर कृषि के अभ्युदय के प्रारंभिक प्रमाण प्राप्त हुए हैं? (A) मुंडिगक (C) दम्ब सादत (E) अमरी (B) मेहरगढ (D) बालाकोट उत्तर - (B) मेहरगढ़ [CG PSC (Pre) 2017] मेहरगढ़ पाकिस्तान के बलूचिस्तान में स्थित है जहां से कृषि और कृषक बस्तियों के साक्ष्य प्राप्त हुए । यह स्थल भारतीय उपमहाद्वीप का प्रथम कृषि संबंधी साक्ष्य वाला स्थल है।"
+    #print(input_paragraph)
+    #pattern = re.compile(r'(\d+\.)\s*\*\s*(.*?)(?:\((A|B|C|D|E)\)\s*(.*?)(?=\([A-E]\)|\[|$))?\s*(\[.*?\])?\s*(.*)')
+    pattern = re.compile(r'(\d)')
     # Extract information using the pattern
     match = pattern.match(input_paragraph)
     print(match)
@@ -116,18 +121,6 @@ def split_paragraph(input_string):
 
     if match:
         output_data["QuestionNumber"] = match.group(1)
-        output_data["QuestionText"] = match.group(2)
-
-        options = match.group(3)
-        option_descriptions = match.group(4)
-
-        if options and option_descriptions:
-            output_data["Options"] = [(opt, desc) for opt, desc in zip(options, option_descriptions)]
-        else:
-            output_data["Options"] = []
-
-        output_data["AnswerKey"] = match.group(5) if match.group(5) else ""
-        output_data["ExamName"] = match.group(6) if match.group(6) else ""
-        output_data["AnswerDescription"] = match.group(7) if match.group(7) else ""
+        
     #output_json = json.dumps(extract_info(example_string), ensure_ascii=False, indent=2)
     return JsonResponse(output_data, safe=False)

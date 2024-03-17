@@ -16,14 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from . views import send_object, send_json, question, deploy, drive_upload, split_paragraph
+from . views import send_object, send_json, question_detection, deploy, drive_upload, split_paragraph, upload_for_active_learning;
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('send_object/', send_object),
     path('send_json/', send_json),
-    path('question', question),
+    path('question', question_detection),
     path('deploy', deploy),
     path('drive_upload', drive_upload),
-    path('split_paragraph', split_paragraph)
+    path('split_paragraph', split_paragraph),
+    path('upload_for_active_learning', upload_for_active_learning),
 ]
